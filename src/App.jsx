@@ -1,42 +1,60 @@
-import { React, useState } from 'react'
+import { React, useEffect, useState } from 'react'
 import {BsSearch} from 'react-icons/bs'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { Spinner } from 'reactstrap';
 import { FetchUrl } from './api/Fetch';
+import Images from './components/Images';
+let scale = '1280x720'
 
 export default function App() {
-  const [imageUrl, setImageUrl] = useState('./background.png')
-  let scale = '1280x720'
-
+  const [imageUrl1, setImageUrl1] = useState('./background.png')
+  const [imageUrl2, setImageUrl2] = useState('./background.png')
+  const [imageUrl3, setImageUrl3] = useState('./background.png')
+  
   function imageRender(ev) {
     ev.preventDefault()
-    setImageUrl('./background.png')
+    setImageUrl1('./background.png')
+    setImageUrl2('./background.png')
+    setImageUrl3('./background.png')
 
     const search = document.getElementById('search')
-    const image = document.getElementById('image')
+    const mode = document.querySelector('input[type="radio"]:checked').value
+    const image = document.querySelectorAll('.image')
     const loading = document.querySelector('.loading')
-    const btnDownload = document.getElementById('download')
+    const btnDownload = document.querySelectorAll('.download')
+    const btn1 = document.getElementById('btn1')
+    const btn2 = document.getElementById('btn2')
+    const btn3 = document.getElementById('btn3')
 
     loading.style.display = 'block'
-    image.style.boxShadow = '3px 3px 10px rgba(0, 0, 0, 0.308)'
-    imageResize()
+    btnDownload.forEach((element) => element.style.display = 'none')
 
-    FetchUrl(scale, search.value).then((result) => {
-      setImageUrl(result.url)
-      return result.blob()
-    }).then((result) => btnDownload.setAttribute('href', `${URL.createObjectURL(result)}`))
-    
-    search.value = ''
-    setTimeout(() => {
+    image.forEach((element) => {
+      element.style.display = 'block'
+      element.style.boxShadow = '3px 3px 10px rgba(0, 0, 0, 0.308)'
+      imageResize(element, mode)
+    })
+
+    FetchUrl(scale, search.value).then(async ({result1, result2, result3}) => {
+      setImageUrl1(result1.url)
+      setImageUrl2(result2.url)
+      setImageUrl3(result3.url)
+      let img1 = await result1.blob()
+      let img2 = await result2.blob()
+      let img3 = await result3.blob()
+      return {img1, img2, img3}
+    }).then((result) => {
+      btn1.setAttribute('href', `${URL.createObjectURL(result.img1)}`)
+      btn2.setAttribute('href', `${URL.createObjectURL(result.img2)}`)
+      btn3.setAttribute('href', `${URL.createObjectURL(result.img3)}`)
       loading.style.display = 'none'
-      btnDownload.style.display = 'block'
-    }, 2000)
-    
+      btnDownload.forEach((element) => element.style.display = 'block')
+    })
   }
 
-  function imageResize() {
-    const image = document.getElementById('image')
-    const mode = document.querySelector('input[type="radio"]:checked').value
+  function imageResize(image, mode) {
+    const container = document.querySelector('.container')
+    container.style.flexDirection = 'column'
     switch (mode) {
       case 'L':
         scale = '1280x720'
@@ -56,14 +74,23 @@ export default function App() {
           image.style.height = '55vw'
         }
         else {
+          container.style.flexDirection = 'row'
+          container.style.gap = '20px'
           image.style.width = '25vw'
           image.style.height = `${55 / 1.7}vw`
         }
       break
     }
   }
-    
-  window.addEventListener('resize', () => imageResize())
+
+  window.addEventListener('resize', () => {
+    const image = document.querySelectorAll('.image')
+    let mode = ''
+    scale == '1280x720' ? mode = 'L' : mode = 'P'
+    image.forEach((element) => {
+      imageResize(element, mode)
+    })
+  })
 
   return (
     <div id='app'>
@@ -92,8 +119,11 @@ export default function App() {
         </div>
       </form>
 
-      <img src={imageUrl} id='image'></img>
-      <a href="#" id="download" download>Baixar Imagem</a>
+      <div className="container">
+        <Images url={imageUrl1} name={'section1'} BtnId={'btn1'} />
+        <Images url={imageUrl2} name={'section2'} BtnId={'btn2'} />
+        <Images url={imageUrl3} name={'section3'} BtnId={'btn3'} />
+      </div>
     </div>
   )
 }
