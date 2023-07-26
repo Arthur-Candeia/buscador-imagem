@@ -2,7 +2,7 @@
 Projeto feito para facilitar o encontro de imagens gratuitas! Esse projeto consome a API do Unsplash que contém mais de 1.000.000 de imagens. As fotos são exibidas com base em um campo de texto e a escolha entre retrato e paisagem pelo usuário. Além disso, cada uma das imagens pode ser baixada de forma prática e rápida! Gostei bastante de desenvolver o projeto, pude trabalhar com múltiplas staks simultaneamente, além de usar Hooks e renderização condicional!
 
 <p align="center">
-<img src="./foto.png" >
+<img src="./https://github.com/Arthur-Candeia/buscador-imagens/blob/master/public/foto.png" >
 </p>
 
 ### O que está presente na aplicação?
